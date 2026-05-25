@@ -332,7 +332,6 @@ public class ManualEntryService {
                 state.getId(),
                 DEFAULT_CITY_POPULATION
         );
-        jdbcTemplate.queryForObject("SELECT setval('location_id_seq', (SELECT max(id) FROM location))", Long.class);
         return locationRepository.findByIdAndType(cityId, LocationType.CITY)
                 .orElseThrow(() -> new EntityNotFoundException("City location not found after create: " + cityId));
     }

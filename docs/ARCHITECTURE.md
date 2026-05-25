@@ -28,7 +28,7 @@ The Spring Boot backend is organized by responsibility:
 - `service`: transaction boundaries, validation, and mapping to response DTOs.
 - `controller`: REST endpoints and HTTP concerns.
 
-The resource optimization endpoint intentionally uses a native PostgreSQL query because it combines recursive hierarchy traversal, latest inventory snapshots, time-window infection aggregation, and scoring in one read-optimized operation.
+The resource optimization endpoint intentionally uses a native MySQL 8 query because it combines recursive hierarchy traversal, latest inventory snapshots, time-window infection aggregation, and scoring in one read-optimized operation.
 
 ## Resource Optimization Scoring
 

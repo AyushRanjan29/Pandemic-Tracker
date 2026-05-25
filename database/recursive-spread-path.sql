@@ -1,16 +1,16 @@
--- Trace a target infection event back to its suspected origin using the
--- source_infection_log_id edge recorded by epidemiology teams.
+-- MySQL 8+ recursive CTE to trace a target infection event back to its
+-- suspected origin using infection_log.source_infection_log_id.
 --
--- Parameters:
---   :target_city_id  - city location id where the outbreak is currently observed
---   :strain_id       - virus strain id
+-- Set these variables before running:
+--   SET @target_city_id = 4;
+--   SET @strain_id = 1;
 
 WITH RECURSIVE target_event AS (
     SELECT il.*
     FROM infection_log il
     JOIN location city ON city.id = il.location_id
-    WHERE il.location_id = :target_city_id
-      AND il.strain_id = :strain_id
+    WHERE il.location_id = @target_city_id
+      AND il.strain_id = @strain_id
       AND city.type = 'CITY'
     ORDER BY il.observed_at DESC
     LIMIT 1
@@ -26,7 +26,7 @@ spread_path AS (
         il.active_cases,
         il.source_confidence,
         0 AS hop_distance_from_target,
-        ARRAY[il.id] AS visited_log_ids
+        CAST(CONCAT(',', il.id, ',') AS CHAR(1000)) AS visited_log_ids
     FROM target_event il
 
     UNION ALL
@@ -41,10 +41,10 @@ spread_path AS (
         parent.active_cases,
         child.source_confidence,
         child.hop_distance_from_target + 1,
-        child.visited_log_ids || parent.id
+        CONCAT(child.visited_log_ids, parent.id, ',')
     FROM spread_path child
     JOIN infection_log parent ON parent.id = child.source_infection_log_id
-    WHERE NOT parent.id = ANY(child.visited_log_ids)
+    WHERE child.visited_log_ids NOT LIKE CONCAT('%,', parent.id, ',%')
 )
 SELECT
     sp.hop_distance_from_target,

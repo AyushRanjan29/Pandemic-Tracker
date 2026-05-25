@@ -1,48 +1,60 @@
 # Pandemic Tracker
 
-Healthcare Informatics and Pandemic Tracking Dashboard using Java 17, Spring Boot, JavaFX, and PostgreSQL.
+Healthcare Informatics and Pandemic Tracking Dashboard using Java 17, Spring Boot, JavaFX, and MySQL.
 
 ## Modules
 
 - `backend`: Spring Boot REST API, JPA entities, repositories, services, Flyway migration.
 - `frontend`: JavaFX desktop dashboard that calls the backend asynchronously.
-- `database`: standalone PostgreSQL schema, sample data, and recursive CTE examples.
+- `database`: standalone MySQL schema, sample data, and recursive CTE examples.
 - `docs`: architecture notes and project structure.
 
 ## Prerequisites
 
 - Java 17+
 - Maven 3.9+
-- PostgreSQL 14+
+- MySQL 8+
 
 ## Database Setup
 
-### Option A: Docker
+Start your local MySQL server on your PC. The backend default connection is:
 
-```bash
-docker compose up -d postgres
+```text
+jdbc:mysql://localhost:3306/pandemic_tracker
+username: root
+password: empty
 ```
 
-Then start the backend. Flyway will create the tables automatically.
-The bundled Flyway migrations also insert demo data so the JavaFX default `State ID = 2` works out of the box.
-Later migrations expand the dataset with additional Indian states, cities, hospitals, outbreak chains, and inventories.
+If your MySQL root account has a password, set it before starting the backend:
 
-### Option B: Local PostgreSQL
+```bash
+set DB_PASSWORD=your_mysql_password
+```
 
-Create a database and user, then run the standalone schema if you are not using Flyway:
+You can also use a dedicated user:
 
 ```sql
-CREATE DATABASE pandemic_tracker;
-CREATE USER pandemic_app WITH PASSWORD 'pandemic_app';
-GRANT ALL PRIVILEGES ON DATABASE pandemic_tracker TO pandemic_app;
+CREATE DATABASE IF NOT EXISTS pandemic_tracker;
+CREATE USER IF NOT EXISTS 'pandemic_app'@'localhost' IDENTIFIED BY 'pandemic_app';
+GRANT ALL PRIVILEGES ON pandemic_tracker.* TO 'pandemic_app'@'localhost';
+FLUSH PRIVILEGES;
 ```
+
+Then run the backend with:
 
 ```bash
-psql -U pandemic_app -d pandemic_tracker -f database/schema.sql
-psql -U pandemic_app -d pandemic_tracker -f database/sample-data.sql
+set DB_USERNAME=pandemic_app
+set DB_PASSWORD=pandemic_app
 ```
 
-The Spring Boot backend also ships with the same schema and demo seed data as Flyway migrations in `backend/src/main/resources/db/migration`.
+Flyway creates the tables and inserts demo data automatically when the backend starts.
+
+If you want to run SQL manually instead of Flyway:
+
+```bash
+mysql -u root -p pandemic_tracker < database/schema.sql
+mysql -u root -p pandemic_tracker < database/sample-data.sql
+```
 
 ## Run Backend
 
@@ -56,9 +68,9 @@ Default API base URL: `http://localhost:8080/api/v1`
 Override database settings with environment variables:
 
 ```bash
-DB_URL=jdbc:postgresql://localhost:5432/pandemic_tracker
-DB_USERNAME=pandemic_app
-DB_PASSWORD=pandemic_app
+set DB_URL=jdbc:mysql://localhost:3306/pandemic_tracker?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+set DB_USERNAME=root
+set DB_PASSWORD=your_mysql_password
 ```
 
 ## Run Frontend
@@ -73,7 +85,7 @@ mvn javafx:run
 The JavaFX client defaults to `http://localhost:8080/api/v1`. Override with:
 
 ```bash
-PANDEMIC_API_BASE_URL=http://localhost:8080/api/v1
+set PANDEMIC_API_BASE_URL=http://localhost:8080/api/v1
 ```
 
 ## Useful Endpoint
@@ -86,14 +98,12 @@ Returns city-level infection pressure, hospital bed capacity, and vaccine availa
 
 ## Manual Entry APIs
 
-The JavaFX app uses these endpoints behind the `Add Data` dialog:
+The JavaFX app uses these endpoints behind the add/edit dialogs:
 
 ```http
 GET  /api/v1/locations?type=STATE
-POST /api/v1/locations
-POST /api/v1/manual-entry/infection-logs
-POST /api/v1/manual-entry/hospital-inventories
-POST /api/v1/manual-entry/vaccine-inventories
+POST /api/v1/manual-entry/city-snapshots
+PUT  /api/v1/manual-entry/city-snapshots/{cityId}
 ```
 
-Restart the backend after adding new Flyway migrations so pending seed data is applied.
+Restart the backend after adding new Flyway migrations so pending schema or seed changes are applied.
