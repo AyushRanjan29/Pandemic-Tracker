@@ -46,7 +46,7 @@ CREATE TABLE infection_log (
     active_cases INT NOT NULL CHECK (active_cases >= 0),
     recoveries INT NOT NULL DEFAULT 0 CHECK (recoveries >= 0),
     deaths INT NOT NULL DEFAULT 0 CHECK (deaths >= 0),
-    test_count INT CHECK (test_count IS NULL OR test_count >= 0),
+    test_count INT CHECK (test_count IS NULL OR test_count >= 0), 
     positivity_rate DECIMAL(5, 2) CHECK (positivity_rate IS NULL OR positivity_rate BETWEEN 0 AND 100),
     source_infection_log_id BIGINT,
     source_confidence DECIMAL(5, 2) CHECK (source_confidence IS NULL OR source_confidence BETWEEN 0 AND 100),
@@ -56,8 +56,7 @@ CREATE TABLE infection_log (
     CONSTRAINT fk_infection_log_location FOREIGN KEY (location_id) REFERENCES location(id) ON DELETE RESTRICT,
     CONSTRAINT fk_infection_log_strain FOREIGN KEY (strain_id) REFERENCES virus_strain(id) ON DELETE RESTRICT,
     CONSTRAINT fk_infection_log_source FOREIGN KEY (source_infection_log_id) REFERENCES infection_log(id) ON DELETE SET NULL,
-    CONSTRAINT uq_infection_log_location_strain_time UNIQUE (location_id, strain_id, observed_at),
-    CONSTRAINT chk_infection_source_not_self CHECK (source_infection_log_id IS NULL OR source_infection_log_id <> id)
+    CONSTRAINT uq_infection_log_location_strain_time UNIQUE (location_id, strain_id, observed_at)
 );
 
 CREATE INDEX idx_infection_log_location_time ON infection_log(location_id, observed_at DESC);

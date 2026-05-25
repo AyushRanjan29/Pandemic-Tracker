@@ -56,8 +56,7 @@ CREATE TABLE infection_log (
     CONSTRAINT fk_infection_log_location FOREIGN KEY (location_id) REFERENCES location(id) ON DELETE RESTRICT,
     CONSTRAINT fk_infection_log_strain FOREIGN KEY (strain_id) REFERENCES virus_strain(id) ON DELETE RESTRICT,
     CONSTRAINT fk_infection_log_source FOREIGN KEY (source_infection_log_id) REFERENCES infection_log(id) ON DELETE SET NULL,
-    CONSTRAINT uq_infection_log_location_strain_time UNIQUE (location_id, strain_id, observed_at),
-    CONSTRAINT chk_infection_source_not_self CHECK (source_infection_log_id IS NULL OR source_infection_log_id <> id)
+    CONSTRAINT uq_infection_log_location_strain_time UNIQUE (location_id, strain_id, observed_at)
 );
 
 CREATE INDEX idx_infection_log_location_time ON infection_log(location_id, observed_at DESC);

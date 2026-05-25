@@ -2,8 +2,8 @@
 -- suspected origin using infection_log.source_infection_log_id.
 --
 -- Set these variables before running:
---   SET @target_city_id = 4;
---   SET @strain_id = 1;
+SET @target_city_id = 4;
+SET @strain_id = 1;
 
 WITH RECURSIVE target_event AS (
     SELECT il.*

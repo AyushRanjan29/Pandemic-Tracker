@@ -1,0 +1,1 @@
+curl.exe -X PUT "http://localhost:8080/api/v1/manual-entry/city-snapshots/13" -H "Content-Type: application/json" -d "{\\"cityName\\":\\"Jaiput Edited\\",\\"newCases\\":999,\\"activeCases\\":888,\\"beds\\":777,\\"icu\\":666,\\"ventilators\\":555,\\"oxygen\\":444,\\"vaccineDoses\\":333,\\"vaccineName\\":\\"PanVax Booster\\"}"

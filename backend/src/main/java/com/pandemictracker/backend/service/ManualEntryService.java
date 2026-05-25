@@ -301,7 +301,7 @@ public class ManualEntryService {
                     throw new IllegalArgumentException("City ID already belongs to another state");
                 }
                 city.setName(request.cityName().trim());
-                return city;
+                return locationRepository.save(city);
             }
             return createCityWithManualId(request.cityId(), request.cityName().trim(), state);
         }
@@ -313,7 +313,9 @@ public class ManualEntryService {
                 cityName
         );
         if (existingByName.isPresent()) {
-            return existingByName.get();
+            Location city = existingByName.get();
+            city.setName(cityName);
+            return locationRepository.save(city);
         }
 
         Location city = new Location(cityName, LocationType.CITY);
